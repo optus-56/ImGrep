@@ -33,3 +33,5 @@ class App extends StatelessWidget {
     );
   }
 }
+
+// note : if things breaks : consider toggling the 'useDeviceImages' to false in ./lib/data/image_repository.dart
