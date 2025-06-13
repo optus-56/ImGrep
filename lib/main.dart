@@ -23,13 +23,13 @@ class App extends StatelessWidget {
           titleLarge: TextStyle(fontWeight: FontWeight.bold),
         ),
       ),
-      
+
       initialRoute: '/',
       routes: {
-        '/' : (context) => Home(),
-        'loading' : (context) => Loading(),
-        'getStarted' : (context) => GetStarted(),
-      }
+        '/': (context) => Home(),
+        'loading': (context) => Loading(),
+        'getStarted': (context) => GetStarted(),
+      },
     );
   }
 }
