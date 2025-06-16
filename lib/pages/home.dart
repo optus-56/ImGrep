@@ -48,10 +48,11 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: Colors.black,
       body: RefreshIndicator(
         onRefresh: _refreshImages,
+        color: Colors.grey[400],
         child:
             _isLoading
                 ? const Center(
-                  child: CircularProgressIndicator(color: Colors.white),
+                  child: CircularProgressIndicator(strokeWidth: 2),
                 )
                 : ImageGrid(imageLoader: _imageLoader),
       ),

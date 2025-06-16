@@ -120,6 +120,19 @@ class DeviceImageTile extends StatelessWidget {
           cachedImage,
           fit: BoxFit.cover,
           gaplessPlayback: true,
+          cacheHeight: 300, 
+              cacheWidth: 300,
+              frameBuilder: (context, child, frame, wasSync) {
+                if (frame == null) {
+                  return Container(
+                    color: Colors.grey[400],
+                    child: const Center(
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  );
+                }
+                return child;
+              },
         ),
       );
     }
@@ -142,6 +155,19 @@ class DeviceImageTile extends StatelessWidget {
               snapshot.data!,
               fit: BoxFit.cover,
               gaplessPlayback: true,
+              cacheHeight: 300, 
+              cacheWidth: 300,
+              frameBuilder: (context, child, frame, wasSync) {
+                if (frame == null) {
+                  return Container(
+                    color: Colors.grey[400],
+                    child: const Center(
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  );
+                }
+                return child;
+              },
             ),
           );
         } else if (snapshot.hasError) {
@@ -167,6 +193,19 @@ class AssetImageTile extends StatelessWidget {
         assetPath,
         fit: BoxFit.cover,
         errorBuilder: (context, error, stackTrace) => const ErrorTile(),
+        cacheHeight: 300, 
+              cacheWidth: 300,
+              frameBuilder: (context, child, frame, wasSync) {
+                if (frame == null) {
+                  return Container(
+                    color: Colors.grey[400],
+                    child: const Center(
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  );
+                }
+                return child;
+              },
       ),
     );
   }
