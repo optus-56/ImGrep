@@ -6,7 +6,7 @@ import 'package:path/path.dart' as p;
 
 //main class
 class ImageRepository {
-  bool useDeviceImages = true; //<<<<
+  bool useDeviceImages = false; //<<<<
   // toggle to load in device images
 
   Future<List<dynamic>> getImages() async {
