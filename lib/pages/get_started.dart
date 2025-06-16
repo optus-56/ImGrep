@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:imgrep/pages/home.dart';
 
-final String description =
-    "ImGrep is your AI-powered visual search companion — built to make sense of the images around you. In a world overflowing with digital content, ImGrep helps you cut through the noise and find what matters. \n It doesn't just look at images — it looks into them, extracting meaning, context, and insight.";
+final String description1 =
+    "ImGrep is your AI-powered visual search companion — built to make sense of the images around you. In a world overflowing with digital content, ImGrep helps you cut through the noise and find what matters.";
+final String description2 = "It doesn't just look at images — it looks into them, extracting meaning, context, and insight.";
 
 class Getstarted extends StatelessWidget {
   const Getstarted({super.key});
@@ -35,19 +36,31 @@ class Getstarted extends StatelessWidget {
                 ),
 
                 SizedBox(
-                  width: 380,
-                  child: Center(
-                    child: Text(
-                      description,
+                  width: 370,
+                  child: Column(
+                    spacing: 10,
+                    children: [Text(
+                      description1,
                       style: TextStyle(
                         color: Color(0xff8E9295),
                         fontFamily: 'Poppins',
-                        fontSize: 16.3,
+                        fontSize: 15,
                         height: 1.6,
                       ),
                       textAlign: TextAlign.center,
                     ),
-                  ),
+                    Text(
+                      description2,
+                      style: TextStyle(
+                        color: Color(0xff8E9295),
+                        fontFamily: 'Poppins',
+                        fontSize: 15,
+                        height: 1.6,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+
+              ]),
                 ),
               ],
             ),
