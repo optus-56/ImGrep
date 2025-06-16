@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:imgrep/controllers/image_loader.dart';
+import 'package:imgrep/data/image_repository.dart';
 import 'package:imgrep/widgets/image_widgets.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -11,32 +12,37 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late final ImageLoader _imageLoader;
-  bool _isLoading = false;
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _imageLoader = ImageLoader();
-    _setLoadingState(true);
-    _imageLoader.initialize().then((_) => _setLoadingState(false));
+    _imageLoader = ImageLoader(ImageRepository());
+    _initialize();
+  }
+
+  Future<void> _initialize() async {
+    setState(() => _isLoading = true);
+    try {
+      await _imageLoader.initialize();
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _refreshImages() async {
+    setState(() => _isLoading = true);
+    try {
+      await _imageLoader.refresh();
+    } finally {
+      setState(() => _isLoading = false);
+    }
   }
 
   @override
   void dispose() {
     _imageLoader.dispose();
     super.dispose();
-  }
-
-  void _setLoadingState(bool isLoading) {
-    setState(() {
-      _isLoading = isLoading;
-    });
-  }
-
-  Future<void> _refreshImages() async {
-    _setLoadingState(true);
-    await _imageLoader.refresh();
-    _setLoadingState(false);
   }
 
   @override
@@ -48,9 +54,7 @@ class _HomeScreenState extends State<HomeScreen> {
         color: Colors.grey[400],
         child:
             _isLoading
-                ? const Center(
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
+                ? const Center(child: CircularProgressIndicator(strokeWidth: 2))
                 : ImageGrid(imageLoader: _imageLoader),
       ),
     );

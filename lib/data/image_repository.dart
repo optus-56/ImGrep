@@ -1,60 +1,144 @@
-import 'package:imgrep/data/asset_images.dart';
-import 'package:imgrep/data/device_images.dart';
+import 'package:flutter/services.dart';
+import 'package:imgrep/utils/debug_logger.dart';
 import 'package:imgrep/utils/settings.dart';
 import 'package:photo_manager/photo_manager.dart';
+import 'dart:convert';
+import 'package:path/path.dart' as p;
 
-/// Main repository class that abstracts image source selection
-class ImageRepository {
-  bool useDeviceImages = HomeScreenSettings.useDeviceImages;
+enum ImageSourceType { device, asset }
 
-  /// Get images from the current source
-  Future<List<dynamic>> getImages() async {
-    return useDeviceImages
-        ? await DeviceImagesService.getImages()
-        : await AssetImagesService.getImages();
-  }
+abstract class ImageSource {
+  Future<List<dynamic>> getImages({int page = 0, int? size});
+  Future<bool> hasImages();
+  void clearCache();
+}
 
-  /// Get images with pagination
-  Future<List<dynamic>> getImagesPaginated({
-    required int page,
-    int? size,
-    AssetPathEntity? album,
-  }) async {
-    if (useDeviceImages) {
-      if (album == null) {
-        album = await DeviceImagesService.getMainAlbum();
-        if (album == null) return [];
-      }
-      return await DeviceImagesService.getImagesPaginated(
-        album: album,
+class DeviceImageSource implements ImageSource {
+  AssetPathEntity? _cachedMainAlbum;
+
+  @override
+  Future<List<dynamic>> getImages({int page = 0, int? size}) async {
+    try {
+      final album = await _getMainAlbum();
+      if (album == null) return [];
+      return await album.getAssetListPaged(
         page: page,
-        size: size,
+        size: size ?? HomeScreenSettings.pageSize,
       );
-    } else {
-      return await AssetImagesService.getImagesPaginated(
-        page: page,
-        size: size,
-      );
+    } catch (e) {
+      Dbg.e('Error loading device images: $e');
+      return [];
     }
   }
 
-  /// Get main album (device images only)
-  Future<AssetPathEntity?> getMainAlbum() async {
-    return useDeviceImages ? await DeviceImagesService.getMainAlbum() : null;
-  }
-
-  /// Check if images are available
+  @override
   Future<bool> hasImages() async {
-    if (useDeviceImages) {
-      return await DeviceImagesService.hasPermissions();
-    } else {
-      return await AssetImagesService.hasImages();
+    final permission = await PhotoManager.requestPermissionExtend();
+    return permission == PermissionState.authorized ||
+        permission == PermissionState.limited;
+  }
+
+  @override
+  void clearCache() {
+    _cachedMainAlbum = null;
+  }
+
+  Future<AssetPathEntity?> _getMainAlbum() async {
+    if (_cachedMainAlbum != null) return _cachedMainAlbum;
+    try {
+      final albums = await PhotoManager.getAssetPathList(
+        type: RequestType.image,
+      );
+      if (albums.isEmpty) return null;
+      AssetPathEntity? mainAlbum;
+      int maxCount = 0;
+      for (var album in albums) {
+        final count = await album.assetCountAsync;
+        if (count > maxCount) {
+          maxCount = count;
+          mainAlbum = album;
+        }
+      }
+      _cachedMainAlbum = mainAlbum;
+      return mainAlbum;
+    } catch (e) {
+      Dbg.e('Error finding main album: $e');
+      return null;
+    }
+  }
+}
+
+class AssetImageSource implements ImageSource {
+  List<String>? _cachedImages;
+
+  @override
+  Future<List<dynamic>> getImages({int page = 0, int? size}) async {
+    try {
+      final allImages = await _loadAssetImages();
+      final pageSize = size ?? HomeScreenSettings.pageSize;
+      final startIndex = page * pageSize;
+      final endIndex = (startIndex + pageSize).clamp(0, allImages.length);
+      if (startIndex >= allImages.length) return [];
+      return allImages.sublist(startIndex, endIndex);
+    } catch (e) {
+      Dbg.e('Error loading asset images: $e');
+      return [];
     }
   }
 
-  /// Clear all caches
-  void clearCache() {
-    DeviceImagesService.clearCache();
-    AssetImagesService.clearCache();
+  @override
+  Future<bool> hasImages() async {
+    try {
+      final images = await _loadAssetImages();
+      return images.isNotEmpty;
+    } catch (e) {
+      Dbg.e('Error checking asset images: $e');
+      return false;
+    }
   }
+
+  @override
+  void clearCache() {
+    _cachedImages = null;
+  }
+
+  Future<List<String>> _loadAssetImages() async {
+    if (_cachedImages != null) return _cachedImages!;
+    try {
+      final manifestContent = await rootBundle.loadString('AssetManifest.json');
+      final manifest = json.decode(manifestContent) as Map<String, dynamic>;
+      _cachedImages =
+          manifest.keys
+              .where(
+                (key) =>
+                    key.startsWith(HomeScreenSettings.assetImagesDir) &&
+                    HomeScreenSettings.supportedExtensions.contains(
+                      p.extension(key).toLowerCase(),
+                    ),
+              )
+              .toList()
+            ..sort();
+      return _cachedImages!;
+    } catch (e) {
+      Dbg.e('Error parsing AssetManifest.json: $e');
+      return [];
+    }
+  }
+}
+
+class ImageRepository {
+  final ImageSource _source;
+
+  ImageRepository()
+    : _source =
+          HomeScreenSettings.useDeviceImages
+              ? DeviceImageSource()
+              : AssetImageSource();
+
+  Future<List<dynamic>> getImages({int page = 0, int? size}) =>
+      _source.getImages(page: page, size: size);
+
+  Future<bool> hasImages() => _source.hasImages();
+
+  void clearCache() => _source.clearCache();
 }

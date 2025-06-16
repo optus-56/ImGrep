@@ -11,6 +11,7 @@
 .svn/
 .swiftpm/
 migrate_working_dir/
+*.lock
 
 # IntelliJ related
 *.iml
@@ -33,11 +34,11 @@ migrate_working_dir/
 .pub/
 /build/
 
-web/
-ios/
-macos/
-windows/
-linux/
+/web/
+/ios/
+/macos/
+/windows/
+/linux/
 
 
 # Symbolication related
