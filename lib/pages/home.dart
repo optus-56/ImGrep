@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:imgrep/controllers/image_loader.dart';
+import 'package:imgrep/widgets/app_bar.dart';
 import 'package:imgrep/widgets/image_widgets.dart';
+import 'package:imgrep/widgets/nav_bar.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -11,12 +13,14 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late final ImageLoader _imageLoader;
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
     _imageLoader = ImageLoader();
-    _imageLoader.initialize();
+    _setLoadingState(true);
+    _imageLoader.initialize().then((_) => _setLoadingState(false));
   }
 
   @override
@@ -25,39 +29,33 @@ class _HomeScreenState extends State<HomeScreen> {
     super.dispose();
   }
 
+  void _setLoadingState(bool isLoading) {
+    setState(() {
+      _isLoading = isLoading;
+    });
+  }
+
   Future<void> _refreshImages() async {
+    _setLoadingState(true);
     await _imageLoader.refresh();
+    _setLoadingState(false);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _buildAppBar(),
+      appBar: ImGrep_AppBar(),
       backgroundColor: Colors.black,
-      body: ImageGrid(imageLoader: _imageLoader),
-    );
-  }
-
-  PreferredSizeWidget _buildAppBar() {
-    return AppBar(
-      title: ListenableBuilder(
-        listenable: _imageLoader,
-        builder: (context, child) {
-          return Text('ImGrep', style: const TextStyle(color: Colors.white));
-        },
+      body: RefreshIndicator(
+        onRefresh: _refreshImages,
+        child:
+            _isLoading
+                ? const Center(
+                  child: CircularProgressIndicator(color: Colors.white),
+                )
+                : ImageGrid(imageLoader: _imageLoader),
       ),
-      backgroundColor: Colors.black,
-      actions: [
-        IconButton(
-          onPressed: _refreshImages,
-          icon: const Icon(Icons.refresh, color: Colors.white),
-          tooltip: 'Refresh',
-        ),
-        IconButton(
-          onPressed: () {},
-          icon: const Icon(Icons.sort, color: Colors.white),
-        ),
-      ],
+      bottomNavigationBar: ImGrep_NavBar(),
     );
   }
 }

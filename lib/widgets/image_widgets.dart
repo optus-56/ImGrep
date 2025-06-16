@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:imgrep/controllers/image_loader.dart';
 import 'package:imgrep/utils/settings.dart';
-import 'package:imgrep/utils/debug_logger.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'dart:typed_data';
 
@@ -181,13 +180,12 @@ class ImageContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Dbg.todo('@bijan : Loading tile make gud ');
     return ClipRRect(borderRadius: BorderRadius.circular(8), child: child);
   }
 }
 
 /// Loading indicator tile
-/// @@here is the loding spinner
+/// @bijan TODO : here is the loding spinner
 class LoadingTile extends StatelessWidget {
   const LoadingTile({super.key});
 
