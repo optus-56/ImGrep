@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:imgrep/data/image_repository.dart';
-
-void main() => runApp(MaterialApp(title: 'ImGrep'));
+import 'package:imgrep/widgets/app_bar.dart';
+import 'package:imgrep/widgets/nav_bar.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -28,24 +28,7 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        toolbarHeight: 70,
-        backgroundColor: Colors.black,
-        title: Padding(
-          padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
-          child: const Text(
-            'ImGrep',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-          ),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.sort),
-            color: Colors.white,
-            onPressed: () {},
-          ),
-        ],
-      ),
+      appBar: ImGrep_AppBar(),
       body: Container(
         color: Colors.black,
         padding: EdgeInsets.all(8.0),
@@ -64,6 +47,7 @@ class _HomeState extends State<Home> {
           },
         ),
       ),
+      bottomNavigationBar: ImGrep_NavBar(),
     );
   }
 }
