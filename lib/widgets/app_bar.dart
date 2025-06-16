@@ -1,6 +1,10 @@
+// ignore_for_file: camel_case_types
+
 import 'package:flutter/material.dart';
 
 class ImGrep_AppBar extends StatelessWidget implements PreferredSizeWidget {
+  const ImGrep_AppBar({super.key});
+
   @override
   Size get preferredSize => const Size.fromHeight(70);
 
