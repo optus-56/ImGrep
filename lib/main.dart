@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:imgrep/pages/home.dart';
 import 'package:imgrep/pages/get_started.dart';
+import 'package:imgrep/pages/home.dart';
 import 'package:imgrep/pages/loading.dart';
 
 void main() {
@@ -26,7 +26,7 @@ class App extends StatelessWidget {
 
       initialRoute: '/',
       routes: {
-        '/': (context) => Home(),
+        '/': (context) => HomeScreen(),
         'loading': (context) => Loading(),
         'getStarted': (context) => GetStarted(),
       },
@@ -34,4 +34,4 @@ class App extends StatelessWidget {
   }
 }
 
-// note : if things breaks : consider toggling the 'useDeviceImages' to false in ./lib/data/image_repository.dart
+// note : if things breaks : consider toggling the 'useDeviceImages' to false in lib/utils/settings.dart
