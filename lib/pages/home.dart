@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:imgrep/controllers/image_loader.dart';
-import 'package:imgrep/widgets/app_bar.dart';
 import 'package:imgrep/widgets/image_widgets.dart';
-import 'package:imgrep/widgets/nav_bar.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -44,7 +42,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: ImGrep_AppBar(),
       backgroundColor: Colors.black,
       body: RefreshIndicator(
         onRefresh: _refreshImages,
@@ -56,7 +53,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 )
                 : ImageGrid(imageLoader: _imageLoader),
       ),
-      bottomNavigationBar: ImGrep_NavBar(),
     );
   }
 }

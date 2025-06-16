@@ -1,7 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:imgrep/pages/get_started.dart';
-import 'package:imgrep/pages/home.dart';
+import 'package:imgrep/pages/main_layout.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class InitialRouteController extends StatefulWidget {
@@ -42,7 +42,7 @@ class InitialRouteControllerState extends State<InitialRouteController> {
       return Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    return _seenGetStarted ? HomeScreen() : Getstarted();
+    return _seenGetStarted ? MainLayout() : Getstarted();
   }
 }
 
