@@ -15,6 +15,7 @@ dependencies:
   flutter_svg: ^2.1.0
   lottie: ^3.3.1
   flutter_native_splash: ^2.4.6
+  path: ^1.9.1
 
 
 dev_dependencies:
