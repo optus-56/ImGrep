@@ -1,3 +1,6 @@
+# Addding linux to gitignore so sadit wont nuke it next time
+linux
+
 # Miscellaneous
 *.class
 *.log
