@@ -23,13 +23,7 @@ class App extends StatelessWidget {
           titleLarge: TextStyle(fontWeight: FontWeight.bold),
         ),
       ),
-
-      initialRoute: '/',
-      routes: {
-        '/': (context) => Splashscreen(),
-        'loading': (context) => Loading(),
-        'getStarted': (context) => Getstarted(),
-      },
+      home: Splashscreen(), // Redirecting default to Splashscreen
     );
   }
 }

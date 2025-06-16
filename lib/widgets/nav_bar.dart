@@ -1,55 +1,61 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-class ImGrep_NavBar extends StatefulWidget {
-  const ImGrep_NavBar({super.key});
+class ImGrep_NavBar extends StatelessWidget {
+  final Function(int) onClick;
+  final int pageIndex;
 
-  @override
-  _ImGrep_NavBarState createState() => _ImGrep_NavBarState();
-}
-
-class _ImGrep_NavBarState extends State<ImGrep_NavBar> {
-  int _currentIndex = 0;
-
-  void _onClick(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
-  }
+  const ImGrep_NavBar({
+    super.key,
+    required this.onClick,
+    required this.pageIndex
+  });
 
   @override
   Widget build(BuildContext context) {
-    return BottomNavigationBar(
-      backgroundColor: Colors.black,
-      iconSize: 28,
-      type: BottomNavigationBarType.fixed,
+    return SizedBox(
+      height: 80,
+      child: Theme(
+        // Added theme to reduce that ripple effect, needs more work though
+        data: Theme.of(context).copyWith(
+          splashFactory: InkRipple.splashFactory,
+          splashColor: Colors.white.withOpacity(0.05),
+          highlightColor: Colors.transparent,
+        ),
+        child: BottomNavigationBar(
+          backgroundColor: Colors.black,
+          iconSize: 28,
+          type: BottomNavigationBarType.fixed,
 
-      // Only showing the selected labels
-      showSelectedLabels: true,
-      showUnselectedLabels: false,
-      selectedItemColor: Colors.white,
+          // Only showing the selected labels
+          showSelectedLabels: true,
+          showUnselectedLabels: false,
+          selectedItemColor: Colors.white,
 
-      currentIndex: _currentIndex,
-      onTap: _onClick,
+          currentIndex: pageIndex,
+          onTap: onClick,
 
-      items: [
-        BottomNavigationBarItem(
-          icon: SvgPicture.asset('assets/icons/ImageIcon.svg'),
-          label: '•',
+          // All the items required in the nav bar
+          items: [
+            BottomNavigationBarItem(
+              icon: SvgPicture.asset('assets/icons/ImageIcon.svg'),
+              label: '•',
+            ),
+            BottomNavigationBarItem(
+              icon: SvgPicture.asset('assets/icons/EyeGlass.svg'),
+              label: '•',
+            ),
+            BottomNavigationBarItem(
+              icon: SvgPicture.asset('assets/icons/LibraryIcon.svg'),
+              label: '•',
+            ),
+            BottomNavigationBarItem(
+              icon: SvgPicture.asset('assets/icons/CloudIcon.svg'),
+              label: '•',
+            ),
+          ],
         ),
-        BottomNavigationBarItem(
-          icon: SvgPicture.asset('assets/icons/EyeGlass.svg'),
-          label: '•',
-        ),
-        BottomNavigationBarItem(
-          icon: SvgPicture.asset('assets/icons/LibraryIcon.svg'),
-          label: '•',
-        ),
-        BottomNavigationBarItem(
-          icon: SvgPicture.asset('assets/icons/CloudIcon.svg'),
-          label: '•',
-        ),
-      ],
+      ),
     );
   }
 }
