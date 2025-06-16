@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:imgrep/pages/get_started.dart';
-
 import 'package:imgrep/pages/loading.dart';
 import 'package:imgrep/utils/initial_route_controller.dart';
 
@@ -34,3 +33,5 @@ class App extends StatelessWidget {
     );
   }
 }
+
+// note : if things breaks : consider toggling the 'useDeviceImages' to false in lib/utils/settings.dart

@@ -1,51 +1,59 @@
 import 'package:flutter/material.dart';
-import 'package:imgrep/data/image_repository.dart';
+import 'package:imgrep/controllers/image_loader.dart';
 import 'package:imgrep/widgets/app_bar.dart';
+import 'package:imgrep/widgets/image_widgets.dart';
 import 'package:imgrep/widgets/nav_bar.dart';
 
-class Home extends StatefulWidget {
-  const Home({super.key});
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
 
   @override
-  State<Home> createState() => _HomeState();
+  State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeState extends State<Home> {
-  final ImageRepository _imageRepo = ImageRepository();
-  List<dynamic> _images = [];
+class _HomeScreenState extends State<HomeScreen> {
+  late final ImageLoader _imageLoader;
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    _loadImages();
+    _imageLoader = ImageLoader();
+    _setLoadingState(true);
+    _imageLoader.initialize().then((_) => _setLoadingState(false));
   }
 
-  Future<void> _loadImages() async {
-    final images = await _imageRepo.getImages();
-    setState(() => _images = images);
+  @override
+  void dispose() {
+    _imageLoader.dispose();
+    super.dispose();
+  }
+
+  void _setLoadingState(bool isLoading) {
+    setState(() {
+      _isLoading = isLoading;
+    });
+  }
+
+  Future<void> _refreshImages() async {
+    _setLoadingState(true);
+    await _imageLoader.refresh();
+    _setLoadingState(false);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: ImGrep_AppBar(),
-      body: Container(
-        color: Colors.black,
-        padding: EdgeInsets.all(8.0),
-        child: GridView.builder(
-          itemCount: _images.length,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3,
-            crossAxisSpacing: 8,
-            mainAxisSpacing: 8,
-          ),
-          itemBuilder: (context, index) {
-            return ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.asset(_images[index], fit: BoxFit.cover),
-            );
-          },
-        ),
+      backgroundColor: Colors.black,
+      body: RefreshIndicator(
+        onRefresh: _refreshImages,
+        child:
+            _isLoading
+                ? const Center(
+                  child: CircularProgressIndicator(color: Colors.white),
+                )
+                : ImageGrid(imageLoader: _imageLoader),
       ),
       bottomNavigationBar: ImGrep_NavBar(),
     );

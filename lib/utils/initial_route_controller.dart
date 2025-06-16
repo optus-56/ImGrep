@@ -42,7 +42,7 @@ class InitialRouteControllerState extends State<InitialRouteController> {
       return Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    return _seenGetStarted ? Home() : Getstarted();
+    return _seenGetStarted ? HomeScreen() : Getstarted();
   }
 }
 

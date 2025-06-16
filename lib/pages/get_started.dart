@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:imgrep/pages/home.dart';
 
-
-final String description = "ImGrep is your AI-powered visual search companion — built to make sense of the images around you. In a world overflowing with digital content, ImGrep helps you cut through the noise and find what matters. \n It doesn't just look at images — it looks into them, extracting meaning, context, and insight.";
+final String description =
+    "ImGrep is your AI-powered visual search companion — built to make sense of the images around you. In a world overflowing with digital content, ImGrep helps you cut through the noise and find what matters. \n It doesn't just look at images — it looks into them, extracting meaning, context, and insight.";
 
 class Getstarted extends StatelessWidget {
   const Getstarted({super.key});
@@ -25,11 +25,10 @@ class Getstarted extends StatelessWidget {
                     child: Text(
                       "ImGrep",
                       style: TextStyle(
-                        
                         color: Colors.white,
                         fontFamily: 'Poppins',
                         fontSize: 30,
-                        fontWeight: FontWeight.w600
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
@@ -39,7 +38,7 @@ class Getstarted extends StatelessWidget {
                   width: 380,
                   child: Center(
                     child: Text(
-                     description,
+                      description,
                       style: TextStyle(
                         color: Color(0xff8E9295),
                         fontFamily: 'Poppins',
@@ -57,39 +56,21 @@ class Getstarted extends StatelessWidget {
                   () => {
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (context) => Home()),
+                      MaterialPageRoute(builder: (context) => HomeScreen()),
                     ),
                   },
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      Text(
-                        "Get Started",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontFamily: 'Poppins',
-                          fontSize: 17,
-                          decoration:
-                              TextDecoration
-                                  .none, // we’ll draw underline ourselves
-                        ),
-                      ),
-                      Positioned(
-                        bottom: -2, // controls vertical position
-                        child: Container(
-                          width:
-                              90, // match text width manually or use LayoutBuilder
-                          height: 1.5,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
+                  Text(
+                    "Get Started",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontFamily: 'Poppins',
+                      fontSize: 17,
+                    ),
                   ),
-
                   SizedBox(width: 8),
                   Image.asset(
                     'assets/icons/arrowforward.png',

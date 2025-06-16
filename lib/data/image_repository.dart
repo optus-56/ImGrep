@@ -1,74 +1,60 @@
-import 'package:imgrep/utils/debug_logger.dart';
+import 'package:imgrep/data/asset_images.dart';
+import 'package:imgrep/data/device_images.dart';
+import 'package:imgrep/utils/settings.dart';
 import 'package:photo_manager/photo_manager.dart';
-import 'dart:convert';
-import 'package:flutter/services.dart';
-import 'package:path/path.dart' as p;
 
-//main class
+/// Main repository class that abstracts image source selection
 class ImageRepository {
-  bool useDeviceImages = false; //<<<<
-  // toggle to load in device images
+  bool useDeviceImages = HomeScreenSettings.useDeviceImages;
 
+  /// Get images from the current source
   Future<List<dynamic>> getImages() async {
     return useDeviceImages
-        ? await DeviceImages.getImages()
-        : AssetImages.getImages(); //images stored in assets/
+        ? await DeviceImagesService.getImages()
+        : await AssetImagesService.getImages();
   }
-}
 
-//
-// load device from the local storage
-//not working
-class DeviceImages {
-  static Future<List<AssetEntity>> getImages() async {
-    Dbg.todo("fix me");
-    try {
-      // Check and request permission
-      final PermissionState permission =
-          await PhotoManager.requestPermissionExtend();
-
-      if (permission != PermissionState.authorized) {
-        throw Exception('Permission not granted: $permission');
+  /// Get images with pagination
+  Future<List<dynamic>> getImagesPaginated({
+    required int page,
+    int? size,
+    AssetPathEntity? album,
+  }) async {
+    if (useDeviceImages) {
+      if (album == null) {
+        album = await DeviceImagesService.getMainAlbum();
+        if (album == null) return [];
       }
-
-      // Get albums
-      final albums = await PhotoManager.getAssetPathList(
-        type: RequestType.image,
-        hasAll: true,
+      return await DeviceImagesService.getImagesPaginated(
+        album: album,
+        page: page,
+        size: size,
       );
-
-      if (albums.isEmpty) {
-        Dbg.warn('No image albums found');
-        return [];
-      }
-
-      // Get assets from first album
-      final assets = await albums.first.getAssetListRange(start: 0, end: 1000);
-
-      return assets;
-    } catch (e, st) {
-      Dbg.e('Error loading images: $e', e, st);
-      return [];
+    } else {
+      return await AssetImagesService.getImagesPaginated(
+        page: page,
+        size: size,
+      );
     }
   }
-}
 
-//
-//import all images in the assets/images/
-class AssetImages {
-  static const _dir = 'assets/images/';
-  static const _exts = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
+  /// Get main album (device images only)
+  Future<AssetPathEntity?> getMainAlbum() async {
+    return useDeviceImages ? await DeviceImagesService.getMainAlbum() : null;
+  }
 
-  static Future<List<String>> getImages() async {
-    final manifest =
-        json.decode(await rootBundle.loadString('AssetManifest.json'))
-            as Map<String, dynamic>;
-    return manifest.keys
-        .where(
-          (key) =>
-              key.startsWith(_dir) &&
-              _exts.contains(p.extension(key).toLowerCase()),
-        )
-        .toList();
+  /// Check if images are available
+  Future<bool> hasImages() async {
+    if (useDeviceImages) {
+      return await DeviceImagesService.hasPermissions();
+    } else {
+      return await AssetImagesService.hasImages();
+    }
+  }
+
+  /// Clear all caches
+  void clearCache() {
+    DeviceImagesService.clearCache();
+    AssetImagesService.clearCache();
   }
 }
