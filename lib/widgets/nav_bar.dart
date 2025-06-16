@@ -1,24 +1,54 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:imgrep/utils/debug_logger.dart';
 
-// ignore: camel_case_types
-class ImGrep_NavBar extends StatelessWidget {
+class ImGrep_NavBar extends StatefulWidget {
   const ImGrep_NavBar({super.key});
+
+  @override
+  _ImGrep_NavBarState createState() => _ImGrep_NavBarState();
+}
+
+class _ImGrep_NavBarState extends State<ImGrep_NavBar> {
+  int _currentIndex = 0;
+
+  void _onClick(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
-      items: const [
+      backgroundColor: Colors.black,
+      iconSize: 28,
+      type: BottomNavigationBarType.fixed,
+
+      // Only showing the selected labels
+      showSelectedLabels: true,
+      showUnselectedLabels: false,
+      selectedItemColor: Colors.white,
+
+      currentIndex: _currentIndex,
+      onTap: _onClick,
+
+      items: [
         BottomNavigationBarItem(
-          icon: Icon(Icons.home),
-          label: 'Home',
+          icon: SvgPicture.asset('assets/icons/ImageIcon.svg'),
+          label: '•',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.search),
-          label: 'Search',
+          icon: SvgPicture.asset('assets/icons/EyeGlass.svg'),
+          label: '•',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.person),
-          label: 'Profile',
+          icon: SvgPicture.asset('assets/icons/LibraryIcon.svg'),
+          label: '•',
+        ),
+        BottomNavigationBarItem(
+          icon: SvgPicture.asset('assets/icons/CloudIcon.svg'),
+          label: '•',
         ),
       ],
     );
