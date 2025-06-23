@@ -11,6 +11,7 @@ import 'package:imgrep/pages/library.dart';
 import 'package:imgrep/pages/cloud.dart';
 
 class MainLayout extends StatefulWidget {
+  const MainLayout({super.key});
   @override
   _MainLayoutState createState() => _MainLayoutState();
 }
