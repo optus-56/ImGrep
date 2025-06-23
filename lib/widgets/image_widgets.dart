@@ -127,17 +127,17 @@ class ImageTile extends StatelessWidget {
           cachedImage != null
               ? Image.memory(
                 cachedImage,
-                fit: BoxFit.cover,
+                fit: BoxFit.fill,
                 gaplessPlayback: true,
-                cacheHeight: HomeScreenSettings.thumbnailSize,
-                cacheWidth: HomeScreenSettings.thumbnailSize,
+                cacheHeight: HomeScreenSettings.thumbnailHeightSize,
+                cacheWidth: HomeScreenSettings.thumbnailWidthSize,
               )
               : isDeviceImage
               ? FutureBuilder<Uint8List?>(
                 future: (image as AssetEntity).thumbnailDataWithSize(
                   ThumbnailSize(
-                    HomeScreenSettings.thumbnailSize,
-                    HomeScreenSettings.thumbnailSize,
+                    HomeScreenSettings.thumbnailHeightSize,
+                    HomeScreenSettings.thumbnailWidthSize,
                   ),
                 ),
                 builder: (context, snapshot) {
@@ -147,10 +147,10 @@ class ImageTile extends StatelessWidget {
                     imageLoader.cacheThumbnail(cacheKey!, snapshot.data!);
                     return Image.memory(
                       snapshot.data!,
-                      fit: BoxFit.cover,
+                      fit: BoxFit.fill,
                       gaplessPlayback: true,
-                      cacheHeight: HomeScreenSettings.thumbnailSize,
-                      cacheWidth: HomeScreenSettings.thumbnailSize,
+                      cacheHeight: HomeScreenSettings.thumbnailHeightSize,
+                      cacheWidth: HomeScreenSettings.thumbnailWidthSize,
                     );
                   }
                   return snapshot.hasError
@@ -160,9 +160,9 @@ class ImageTile extends StatelessWidget {
               )
               : Image.asset(
                 image as String,
-                fit: BoxFit.cover,
-                cacheHeight: HomeScreenSettings.thumbnailSize,
-                cacheWidth: HomeScreenSettings.thumbnailSize,
+                fit: BoxFit.fill,
+                cacheHeight: HomeScreenSettings.thumbnailHeightSize,
+                cacheWidth: HomeScreenSettings.thumbnailWidthSize,
                 errorBuilder: (context, error, stackTrace) => const ErrorTile(),
               ),
     );

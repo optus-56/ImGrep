@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:imgrep/pages/get_started.dart';
 import 'package:imgrep/pages/loading.dart';
-import 'package:imgrep/pages/splashscreen.dart';
+import 'package:imgrep/utils/initial_route_controller.dart';
 
 void main() {
   runApp(const App());
@@ -23,7 +23,13 @@ class App extends StatelessWidget {
           titleLarge: TextStyle(fontWeight: FontWeight.bold),
         ),
       ),
-      home: Splashscreen(), // Redirecting default to Splashscreen
+
+      initialRoute: '/',
+      routes: {
+        '/': (context) => InitialRouteController(),
+        'loading': (context) => Loading(),
+        'getStarted': (context) => Getstarted(),
+      },
     );
   }
 }

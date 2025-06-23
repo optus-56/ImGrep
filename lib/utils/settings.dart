@@ -13,7 +13,8 @@ class HomeScreenSettings {
   static const double gridSpacing = 8.0;
 
   // Thumbnail settings
-  static const int thumbnailSize = 200;
+  static const int thumbnailHeightSize = 200;
+  static const int thumbnailWidthSize = 200;
 
   // Asset settings
   static const String assetImagesDir = 'assets/images/';
@@ -23,5 +24,6 @@ class HomeScreenSettings {
     '.png',
     '.webp',
     '.gif',
+    '.mp4',
   ];
 }

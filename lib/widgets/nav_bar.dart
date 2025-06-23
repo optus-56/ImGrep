@@ -14,7 +14,6 @@ class ImGrep_NavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 80,
       child: Theme(
         // Added theme to reduce that ripple effect, needs more work though
         data: Theme.of(context).copyWith(
