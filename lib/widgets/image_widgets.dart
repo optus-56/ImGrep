@@ -16,93 +16,43 @@ class _ImageGridState extends State<ImageGrid> {
   bool _isLoadingMore = false;
   @override
   Widget build(BuildContext context) {
-    return ListenableBuilder(
-      listenable: widget.imageLoader,
-      builder:
-          (context, _) =>
-              widget.imageLoader.isEmpty
-                  ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          widget.imageLoader.statusMessage.contains(
-                                    "Permission",
-                                  ) ||
-                                  widget.imageLoader.statusMessage.contains(
-                                    "Error",
-                                  )
-                              ? Icons.error_outline
-                              : Icons.photo_library_outlined,
-                          size: 64,
-                          color: Colors.grey,
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          widget.imageLoader.statusMessage,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        if (widget.imageLoader.statusMessage.contains(
-                              "Permission",
-                            ) ||
-                            widget.imageLoader.statusMessage.contains("Error"))
-                          Padding(
-                            padding: const EdgeInsets.only(top: 16),
-                            child: ElevatedButton(
-                              onPressed: widget.imageLoader.refresh,
-                              child: const Text("Retry"),
-                            ),
-                          ),
-                      ],
+    return NotificationListener<ScrollNotification>(
+      onNotification: (scrollInfo) {
+        if (!_isLoadingMore &&
+            !widget.imageLoader.isLoading &&
+            widget.imageLoader.hasMoreImages &&
+            scrollInfo.metrics.pixels >=
+                scrollInfo.metrics.maxScrollExtent -
+                    HomeScreenSettings.paginationTriggerOffset) {
+          setState(() => _isLoadingMore = true);
+          widget.imageLoader.loadMoreImages().then((_) {
+            if (mounted) setState(() => _isLoadingMore = false);
+          });
+        }
+        return false;
+      },
+      child: GridView.builder(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(HomeScreenSettings.gridSpacing),
+        itemCount:
+            widget.imageLoader.imageCount +
+            (widget.imageLoader.hasMoreImages && widget.imageLoader.isLoading
+                ? 1
+                : 0),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: HomeScreenSettings.gridCrossAxisCount,
+          mainAxisSpacing: HomeScreenSettings.gridSpacing,
+          crossAxisSpacing: HomeScreenSettings.gridSpacing,
+        ),
+        itemBuilder:
+            (context, index) =>
+                index >= widget.imageLoader.imageCount
+                    ? const LoadingTile()
+                    : ImageTile(
+                      image: widget.imageLoader.images[index],
+                      imageLoader: widget.imageLoader,
                     ),
-                  )
-                  : NotificationListener<ScrollNotification>(
-                    onNotification: (scrollInfo) {
-                      if (!_isLoadingMore &&
-                          !widget.imageLoader.isLoading &&
-                          widget.imageLoader.hasMoreImages &&
-                          scrollInfo.metrics.pixels >=
-                              scrollInfo.metrics.maxScrollExtent -
-                                  HomeScreenSettings.paginationTriggerOffset) {
-                        setState(() => _isLoadingMore = true);
-                        widget.imageLoader.loadMoreImages().then((_) {
-                          if (mounted) setState(() => _isLoadingMore = false);
-                        });
-                      }
-                      return false;
-                    },
-                    child: GridView.builder(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      padding: const EdgeInsets.all(
-                        HomeScreenSettings.gridSpacing,
-                      ),
-                      itemCount:
-                          widget.imageLoader.imageCount +
-                          (widget.imageLoader.hasMoreImages &&
-                                  widget.imageLoader.isLoading
-                              ? 1
-                              : 0),
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount:
-                                HomeScreenSettings.gridCrossAxisCount,
-                            mainAxisSpacing: HomeScreenSettings.gridSpacing,
-                            crossAxisSpacing: HomeScreenSettings.gridSpacing,
-                          ),
-                      itemBuilder:
-                          (context, index) =>
-                              index >= widget.imageLoader.imageCount
-                                  ? const LoadingTile()
-                                  : ImageTile(
-                                    image: widget.imageLoader.images[index],
-                                    imageLoader: widget.imageLoader,
-                                  ),
-                    ),
-                  ),
+      ),
     );
   }
 }
