@@ -19,7 +19,6 @@ class MainLayout extends StatefulWidget {
 class _MainLayoutState extends State<MainLayout> {
   // Note(slok): PageControllers and Page Index are here temporarily
   // Maybe shift to some provider shit when needed
-  // Dont you dare refactor this sadit.
   final PageController _pageController = PageController();
   int _currentPageIndex = 0;
 
@@ -51,7 +50,7 @@ class _MainLayoutState extends State<MainLayout> {
       ),
       bottomNavigationBar: ImGrep_NavBar(
         onClick: _onNavBarClick,
-        pageIndex: _currentPageIndex
+        pageIndex: _currentPageIndex,
       ),
     );
   }
