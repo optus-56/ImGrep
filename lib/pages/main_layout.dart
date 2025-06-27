@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/gestures.dart';
 import 'package:imgrep/widgets/nav_bar.dart';
 import 'package:imgrep/widgets/app_bar.dart';
-import 'package:imgrep/utils/debug_logger.dart';
 
 // Pages
 import 'package:imgrep/pages/home.dart';
@@ -13,10 +11,10 @@ import 'package:imgrep/pages/cloud.dart';
 class MainLayout extends StatefulWidget {
   const MainLayout({super.key});
   @override
-  _MainLayoutState createState() => _MainLayoutState();
+  MainLayoutState createState() => MainLayoutState();
 }
 
-class _MainLayoutState extends State<MainLayout> {
+class MainLayoutState extends State<MainLayout> {
   // Note(slok): PageControllers and Page Index are here temporarily
   // Maybe shift to some provider shit when needed
   final PageController _pageController = PageController();
