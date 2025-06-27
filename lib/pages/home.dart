@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:imgrep/controllers/image_loader.dart';
 import 'package:imgrep/data/image_repository.dart';
@@ -26,17 +28,21 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _initialize() async {
     setState(() => _isLoading = true);
     try {
-      // Request permissions first
-      final PermissionState ps = await PhotoManager.requestPermissionExtend();
-      if (ps.isAuth) {
-        await _imageLoader.initialize();
+      if (Platform.isAndroid) {
+        // Request permissions first
+        final PermissionState ps = await PhotoManager.requestPermissionExtend();
+        if (ps.isAuth) {
+          await _imageLoader.initialize();
+        } else {
+          // Handle permission denied
+          Dbg.e(
+            ps.hasAccess
+                ? "Limited photo access granted"
+                : "Photo permission denied",
+          );
+        }
       } else {
-        // Handle permission denied
-        Dbg.e(
-          ps.hasAccess
-              ? "Limited photo access granted"
-              : "Photo permission denied",
-        );
+        await _imageLoader.initialize();
       }
     } finally {
       setState(() => _isLoading = false);
@@ -71,7 +77,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 : ListenableBuilder(
                   listenable: _imageLoader,
                   builder: (context, _) {
-                    if (_imageLoader.isEmpty) {
+                    if (_imageLoader.isEmpty && Platform.isAndroid) {
                       return PermissionStatusWidget(imageLoader: _imageLoader);
                     }
                     return ImageGrid(imageLoader: _imageLoader);
