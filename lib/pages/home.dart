@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:imgrep/controllers/image_loader.dart';
 import 'package:imgrep/data/image_repository.dart';
+import 'package:imgrep/data/local_database.dart';
 import 'package:imgrep/utils/debug_logger.dart' show Dbg;
+import 'package:imgrep/utils/settings.dart';
 import 'package:imgrep/widgets/image_widgets.dart';
 import 'package:photo_manager/photo_manager.dart';
 
@@ -14,12 +16,15 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late final ImageLoader _imageLoader;
+  late final LocalDatabase _db;
   bool _isLoading = true;
+  bool _isScanning = false;
 
   @override
   void initState() {
     super.initState();
-    _imageLoader = ImageLoader(ImageRepository());
+    _db = LocalDatabase();
+    _imageLoader = ImageLoader(ImageRepository(), _db);
     _initialize();
   }
 
@@ -30,6 +35,10 @@ class _HomeScreenState extends State<HomeScreen> {
       final PermissionState ps = await PhotoManager.requestPermissionExtend();
       if (ps.isAuth) {
         await _imageLoader.initialize();
+        // Run change detection after loading images
+        if (HomeScreenSettings.useDeviceImages) {
+          _startBackgroundScan();
+        }
       } else {
         // Handle permission denied
         Dbg.e(
@@ -43,10 +52,25 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  void _startBackgroundScan() {
+    if (_isScanning) return;
+    _isScanning = true;
+    Future(() async {
+      try {
+        await _imageLoader.scanAndCompare();
+      } catch (e) {
+        Dbg.e('Background scan error: $e');
+      } finally {
+        _isScanning = false;
+      }
+    });
+  }
+
   Future<void> _refreshImages() async {
     setState(() => _isLoading = true);
     try {
       await _imageLoader.refresh();
+      _imageLoader.scanAndCompare(); //no await
     } finally {
       setState(() => _isLoading = false);
     }
