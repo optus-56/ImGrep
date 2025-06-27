@@ -1,8 +1,10 @@
+import 'dart:io';
+
 class HomeScreenSettings {
   //TOGGLE - CHANGE THIS TO SWITCH IMAGE SOURCES
-  static const bool useDeviceImages =
-      false; // true = device storage, false = assets
-
+  static final bool useDeviceImages =
+      // false; // true = device storage, false = assets
+      Platform.isAndroid;
   // Pagination settings
   static const int pageSize = 30;
   static const double paginationTriggerOffset =
