@@ -1,7 +1,7 @@
 class HomeScreenSettings {
   //TOGGLE - CHANGE THIS TO SWITCH IMAGE SOURCES
   static const bool useDeviceImages =
-      true; // true = device storage, false = assets
+      false; // true = device storage, false = assets
 
   // Pagination settings
   static const int pageSize = 30;
