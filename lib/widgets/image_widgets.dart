@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:imgrep/controllers/image_loader.dart';
-import 'package:imgrep/utils/settings.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'dart:typed_data';
 
@@ -30,7 +29,7 @@ class ImageGrid extends StatelessWidget {
       padding: const EdgeInsets.all(4),
       itemCount: imageLoader.imageCount + (imageLoader.isLoading ? 1 : 0),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: HomeScreenSettings.gridCrossAxisCount,
+        crossAxisCount: 3,
         mainAxisSpacing: 2,
         crossAxisSpacing: 2,
       ),
