@@ -93,39 +93,61 @@ class PermissionStatusWidget extends StatelessWidget {
 
   const PermissionStatusWidget({super.key, required this.imageLoader});
 
-  bool get _hasPermissionError =>
-      imageLoader.statusMessage.contains("Permission") ||
-      imageLoader.statusMessage.contains("Error");
-
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            _hasPermissionError
-                ? Icons.error_outline
-                : Icons.photo_library_outlined,
-            size: 64,
-            color: Colors.grey,
-          ),
-          const SizedBox(height: 16),
-          Text(
-            imageLoader.statusMessage,
-            style: const TextStyle(color: Colors.white, fontSize: 18),
-            textAlign: TextAlign.center,
-          ),
-          if (_hasPermissionError)
-            Padding(
-              padding: const EdgeInsets.only(top: 16),
-              child: ElevatedButton(
-                onPressed: imageLoader.refresh,
-                child: const Text("Retry"),
-              ),
+    if (imageLoader.isLoading) {
+      return const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircularProgressIndicator(),
+            SizedBox(height: 16),
+            Text(
+              "Loading images...",
+              style: TextStyle(color: Colors.white, fontSize: 18),
             ),
-        ],
-      ),
-    );
+          ],
+        ),
+      );
+    }
+
+    if (imageLoader.hasError) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error_outline, size: 64, color: Colors.grey),
+            const SizedBox(height: 16),
+            Text(
+              imageLoader.error ?? "Unknown error",
+              style: const TextStyle(color: Colors.white, fontSize: 18),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: imageLoader.refresh,
+              child: const Text("Retry"),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (imageLoader.isEmpty) {
+      return const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.photo_library_outlined, size: 64, color: Colors.grey),
+            SizedBox(height: 16),
+            Text(
+              "No images found",
+              style: TextStyle(color: Colors.white, fontSize: 18),
+            ),
+          ],
+        ),
+      );
+    }
+    return const SizedBox.shrink();
   }
 }

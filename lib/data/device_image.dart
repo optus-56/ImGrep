@@ -23,15 +23,17 @@ class DeviceImageSource implements ImageSource {
 
   @override
   Future<bool> hasImages() async {
-    final permission = await PhotoManager.requestPermissionExtend();
-    return permission == PermissionState.authorized ||
-        permission == PermissionState.limited;
+    try {
+      final album = await _getMainAlbum();
+      return album != null && await album.assetCountAsync > 0;
+    } catch (e) {
+      Dbg.e('Error checking device images: $e');
+      return false;
+    }
   }
 
   @override
-  void clearCache() {
-    _cachedMainAlbum = null;
-  }
+  void clearCache() => _cachedMainAlbum = null;
 
   Future<AssetPathEntity?> _getMainAlbum() async {
     if (_cachedMainAlbum != null) return _cachedMainAlbum;

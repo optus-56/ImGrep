@@ -35,12 +35,11 @@ class AssetImageSource implements ImageSource {
   }
 
   @override
-  void clearCache() {
-    _cachedImages = null;
-  }
+  void clearCache() => _cachedImages = null;
 
   Future<List<String>> _loadAssetImages() async {
     if (_cachedImages != null) return _cachedImages!;
+
     try {
       final manifestContent = await rootBundle.loadString('AssetManifest.json');
       final manifest = json.decode(manifestContent) as Map<String, dynamic>;

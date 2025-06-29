@@ -1,58 +1,47 @@
 import 'package:flutter/material.dart';
 import 'package:imgrep/controllers/image_loader.dart';
-import 'package:imgrep/utils/settings.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'dart:typed_data';
 
 /// Main image grid widget that delegates to specific implementations
-class ImageGrid extends StatefulWidget {
+class ImageGrid extends StatelessWidget {
   final ImageLoader imageLoader;
-  const ImageGrid({super.key, required this.imageLoader});
-  @override
-  State<ImageGrid> createState() => _ImageGridState();
-}
+  final ScrollController _scrollController = ScrollController();
 
-class _ImageGridState extends State<ImageGrid> {
-  bool _isLoadingMore = false;
+  ImageGrid({super.key, required this.imageLoader}) {
+    _scrollController.addListener(_onScroll);
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+            _scrollController.position.maxScrollExtent - 200 &&
+        imageLoader.hasMoreImages &&
+        !imageLoader.isLoading) {
+      imageLoader.loadMoreImages();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return NotificationListener<ScrollNotification>(
-      onNotification: (scrollInfo) {
-        if (!_isLoadingMore &&
-            !widget.imageLoader.isLoading &&
-            widget.imageLoader.hasMoreImages &&
-            scrollInfo.metrics.pixels >=
-                scrollInfo.metrics.maxScrollExtent -
-                    HomeScreenSettings.paginationTriggerOffset) {
-          setState(() => _isLoadingMore = true);
-          widget.imageLoader.loadMoreImages().then((_) {
-            if (mounted) setState(() => _isLoadingMore = false);
-          });
-        }
-        return false;
-      },
-      child: GridView.builder(
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.all(HomeScreenSettings.gridSpacing),
-        itemCount:
-            widget.imageLoader.imageCount +
-            (widget.imageLoader.hasMoreImages && widget.imageLoader.isLoading
-                ? 1
-                : 0),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: HomeScreenSettings.gridCrossAxisCount,
-          mainAxisSpacing: HomeScreenSettings.gridSpacing,
-          crossAxisSpacing: HomeScreenSettings.gridSpacing,
-        ),
-        itemBuilder:
-            (context, index) =>
-                index >= widget.imageLoader.imageCount
-                    ? const LoadingTile()
-                    : ImageTile(
-                      image: widget.imageLoader.images[index],
-                      imageLoader: widget.imageLoader,
-                    ),
+    return GridView.builder(
+      controller: _scrollController,
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.all(4),
+      itemCount: imageLoader.imageCount + (imageLoader.isLoading ? 1 : 0),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+        mainAxisSpacing: 2,
+        crossAxisSpacing: 2,
       ),
+      itemBuilder: (context, index) {
+        if (index >= imageLoader.imageCount) {
+          return const LoadingTile();
+        }
+        return ImageTile(
+          image: imageLoader.images[index],
+          imageLoader: imageLoader,
+        );
+      },
     );
   }
 }
@@ -65,56 +54,57 @@ class ImageTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (image is! AssetEntity && image is! String) return const ErrorTile();
+    if (image is AssetEntity) {
+      return _DeviceImageTile(asset: image, imageLoader: imageLoader);
+    }
+    if (image is String) {
+      return _AssetImageTile(path: image);
+    }
+    return const ErrorTile();
+  }
+}
 
-    final isDeviceImage = image is AssetEntity;
-    final cacheKey = isDeviceImage ? (image as AssetEntity).id : null;
-    final cachedImage =
-        isDeviceImage ? imageLoader.getCachedThumbnail(cacheKey!) : null;
+class _DeviceImageTile extends StatelessWidget {
+  final AssetEntity asset;
+  final ImageLoader imageLoader;
 
+  const _DeviceImageTile({required this.asset, required this.imageLoader});
+
+  @override
+  Widget build(BuildContext context) {
+    final cached = imageLoader.getCachedThumbnail(asset.id);
+    if (cached != null) {
+      return ImageContainer(child: Image.memory(cached, fit: BoxFit.cover));
+    }
+
+    return FutureBuilder<Uint8List?>(
+      future: asset.thumbnailDataWithSize(const ThumbnailSize(200, 200)),
+      builder: (context, snapshot) {
+        if (snapshot.hasData && snapshot.data != null) {
+          imageLoader.cacheThumbnail(asset.id, snapshot.data!);
+          return ImageContainer(
+            child: Image.memory(snapshot.data!, fit: BoxFit.cover),
+          );
+        }
+        return snapshot.hasError ? const ErrorTile() : const LoadingTile();
+      },
+    );
+  }
+}
+
+class _AssetImageTile extends StatelessWidget {
+  final String path;
+
+  const _AssetImageTile({required this.path});
+
+  @override
+  Widget build(BuildContext context) {
     return ImageContainer(
-      child:
-          cachedImage != null
-              ? Image.memory(
-                cachedImage,
-                fit: BoxFit.fill,
-                gaplessPlayback: true,
-                cacheHeight: HomeScreenSettings.thumbnailHeightSize,
-                cacheWidth: HomeScreenSettings.thumbnailWidthSize,
-              )
-              : isDeviceImage
-              ? FutureBuilder<Uint8List?>(
-                future: (image as AssetEntity).thumbnailDataWithSize(
-                  ThumbnailSize(
-                    HomeScreenSettings.thumbnailHeightSize,
-                    HomeScreenSettings.thumbnailWidthSize,
-                  ),
-                ),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.done &&
-                      snapshot.hasData &&
-                      snapshot.data != null) {
-                    imageLoader.cacheThumbnail(cacheKey!, snapshot.data!);
-                    return Image.memory(
-                      snapshot.data!,
-                      fit: BoxFit.fill,
-                      gaplessPlayback: true,
-                      cacheHeight: HomeScreenSettings.thumbnailHeightSize,
-                      cacheWidth: HomeScreenSettings.thumbnailWidthSize,
-                    );
-                  }
-                  return snapshot.hasError
-                      ? const ErrorTile()
-                      : const LoadingTile();
-                },
-              )
-              : Image.asset(
-                image as String,
-                fit: BoxFit.fill,
-                cacheHeight: HomeScreenSettings.thumbnailHeightSize,
-                cacheWidth: HomeScreenSettings.thumbnailWidthSize,
-                errorBuilder: (context, error, stackTrace) => const ErrorTile(),
-              ),
+      child: Image.asset(
+        path,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => const ErrorTile(),
+      ),
     );
   }
 }
@@ -130,8 +120,10 @@ class ImageContainer extends StatelessWidget {
       borderRadius: BorderRadius.circular(8),
       child: Stack(
         children: [
-          Positioned.fill(child: Container(color: Colors.grey[400])),
-          child,
+          Positioned.fill(
+            child: Container(color: const Color.fromARGB(100, 58, 56, 56)),
+          ),
+          Center(child: child),
         ],
       ),
     );
