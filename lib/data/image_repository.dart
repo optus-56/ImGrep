@@ -25,4 +25,9 @@ class ImageRepository {
   Future<bool> hasImages() => _source.hasImages();
 
   void clearCache() => _source.clearCache();
+
+  ImageSourceType get sourceType =>
+      HomeScreenSettings.useDeviceImages
+          ? ImageSourceType.device
+          : ImageSourceType.asset;
 }
